@@ -1,0 +1,12 @@
+.classpath
+.project
+.settings/
+.loadpath
+
+bin/**
+
+*.jar
+*.war
+*.ear
+*.class
+*.launch
