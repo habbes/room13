@@ -6,6 +6,12 @@ import java.util.List;
 
 import room13.message.*;
 
+/**
+ * Message to containing a list of members in a room, sent as
+ * response to a MembersMessage
+ * @author Habbes
+ *
+ */
 public class MembersListMessage extends BaseRoomMessage {
 	
 	private List<String> membersList;

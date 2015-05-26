@@ -4,6 +4,11 @@ import room13.message.BodyCoder;
 import room13.message.Message;
 import room13.message.RawMessage;
 
+/**
+ * A user-defined message sent to all users in a room
+ * @author Habbes
+ *
+ */
 public class BroadcastMessage extends BaseRoomMessage {
 
 	public String message;

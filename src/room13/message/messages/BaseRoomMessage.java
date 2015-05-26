@@ -5,7 +5,7 @@ import room13.message.Message;
 import room13.message.RawMessage;
 
 /**
- * base class for Messages that are directed to a particular Room on a server
+ * Base class for Messages that are directed to a particular Room on a server
  * @author Habbes
  *
  */

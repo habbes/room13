@@ -6,6 +6,11 @@ import room13.message.InvalidMessageException;
 import room13.message.Message;
 import room13.message.RawMessage;
 
+/**
+ * A user-defined message sent to a particular recipient in a room
+ * @author Habbes
+ *
+ */
 public class SendMessage extends BaseRoomMessage {
 	
 	private String message;

@@ -4,6 +4,11 @@ import room13.message.*;
 import room13.message.Message;
 import room13.message.RawMessage;
 
+/**
+ * Request to join an existing room
+ * @author Habbes
+ *
+ */
 public class JoinRoomMessage extends Message {
 	
 	private String roomName;

@@ -2,6 +2,11 @@ package room13.message.messages;
 
 import room13.message.*;
 
+/**
+ * Request to set a user's name in a room
+ * @author Habbes
+ *
+ */
 public class NameMessage extends BaseRoomMessage {
 
 	private String name;

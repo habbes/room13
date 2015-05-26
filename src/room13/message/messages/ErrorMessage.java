@@ -7,7 +7,7 @@ import room13.message.Message;
 import room13.message.RawMessage;
 
 /**
- * response message sent when error occurs
+ * Response message sent when error occurs
  * @author Habbes
  *
  */

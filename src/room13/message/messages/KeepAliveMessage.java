@@ -3,6 +3,11 @@ package room13.message.messages;
 import room13.message.Message;
 import room13.message.RawMessage;
 
+/**
+ * Message sent to keep connection alive despite inactivity
+ * @author Habbes
+ *
+ */
 public class KeepAliveMessage extends Message {
 
 	public KeepAliveMessage() {
