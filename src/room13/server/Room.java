@@ -11,12 +11,14 @@ import room13.message.messages.*;
 
 public class Room {
 	
+	private String name;
 	private List<User> users = new ArrayList<User>();
 	private Map<String,User> usernames = new HashMap<String, User>();
 	private int lastId = 0;
 	private String password = "";
 	
-	public Room() {
+	public Room(String name) {
+		this.name = name;
 		// TODO Auto-generated constructor stub
 	}
 	/**
@@ -46,6 +48,20 @@ public class Room {
 	 */
 	private int generateId(){
 		return ++lastId;
+	}
+	/*
+	 * Sets the name of the room
+	 * @param String name
+	 */
+	public void setName(String name){
+		this.name = name;
+	}
+	/*
+	 * Used to get the name of the room
+	 * @return String name
+	 */
+	public String getName(){
+		return this.name;
 	}
 	/**
 	 * Sets a name for the username if the name doesn't exist
@@ -91,14 +107,26 @@ public class Room {
 		user.setAdmin();
 		this.setAdmin(user);
 	}
+	/*
+	 * Adds a user to the room
+	 * @param Client client
+	 * @param String password
+	 * @throws Exception when the password is wrong
+	 */
 	public void addUser(Client client,String pass) throws Exception{
-		if(pass == this.password){
-			User user = new User(client,this,this.generateId());
-			this.users.add(user);
+		if(pass == this.password){ //check password
+			User user = new User(client,this,this.generateId());  //create user
+			this.users.add(user); //add the user
 		}else{
-			throw new Exception("Wrong password!");
+			throw new Exception("Wrong password!"); //oops!!! something went wrong
 		}
 	}
+	/*
+	 * This is where all messages are routed to their respective handlers depending on the 
+	 * message type
+	 * @param User user
+	 * @param Message msg
+	 */
 	public void handleMessage(User user,Message msg){
 		switch(msg.getMsgId()){
 			case Message.BROADCAST:
@@ -140,15 +168,47 @@ public class Room {
 		}
 	}
 	public void handleBroadcast(User user,BroadcastMessage msg){
-		
+		for(User recipient : this.users){
+			try {
+				recipient.send(msg);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	public void handleName(User user,NameMessage msg){
-		
+		if(!this.usernames.containsKey(msg.getName())){
+			this.usernames.put(msg.getName(),user);
+			try {
+				user.send(new OkMessage(msg.getReqId()));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else{
+			try {
+				user.send(new ErrorMessage(msg.getReqId(),ErrorMessage.USER_NAME_UNAVAILABLE));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	public void handleMembers(User user,MembersMessage msg){
-		
+		MembersListMessage members = new MembersListMessage(this.name,msg.getReqId());
+		for(String name : this.usernames.keySet()){
+			members.addMember(name);
+		}
+		try {
+			user.send(members);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	public void handleLeaveRoom(User user,LeaveRoomMessage msg){
+		
 		
 	}
 	public void handleJoinRoom(User user,JoinRoomMessage msg){
