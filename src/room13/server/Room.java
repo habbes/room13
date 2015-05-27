@@ -114,6 +114,9 @@ public class Room {
 	 * @throws Exception when the password is wrong
 	 */
 	public void addUser(Client client,String pass) throws Exception{
+		/*
+		 *I need to send an event after clement creates it ATTENTION!!!!!!!!! 
+		 */
 		if(pass == this.password){ //check password
 			User user = new User(client,this,this.generateId());  //create user
 			this.users.add(user); //add the user
@@ -154,6 +157,11 @@ public class Room {
 				
 		}
 	}
+	/*
+	 * Handles any message that needs to be sent
+	 * @param User user
+	 * @param SendMessage msg
+	 */
 	public void handleSend(User user,SendMessage msg){
 		try {
 			User recipient = this.findUser(msg.getRecipient());
@@ -167,6 +175,11 @@ public class Room {
 			e.printStackTrace();
 		}
 	}
+	/*
+	 * Handles any broadcast message
+	 * @param User user
+	 * @param BroadcastMessage msg
+	 */
 	public void handleBroadcast(User user,BroadcastMessage msg){
 		for(User recipient : this.users){
 			try {
@@ -177,6 +190,11 @@ public class Room {
 			}
 		}
 	}
+	/*
+	 * Handles the name change, if the user wants to change their name
+	 * @param user user
+	 * @param NameMessage msg
+	 */
 	public void handleName(User user,NameMessage msg){
 		if(!this.usernames.containsKey(msg.getName())){
 			this.usernames.put(msg.getName(),user);
@@ -195,6 +213,11 @@ public class Room {
 			}
 		}
 	}
+	/*
+	 * Handles the members message by returning a list of all the members names
+	 * @param User user
+	 * @param MembersMessage msg
+	 */
 	public void handleMembers(User user,MembersMessage msg){
 		MembersListMessage members = new MembersListMessage(this.name,msg.getReqId());
 		for(String name : this.usernames.keySet()){
@@ -207,11 +230,19 @@ public class Room {
 			e.printStackTrace();
 		}
 	}
+	/*
+	 * Handles the leave room message
+	 * @param User user
+	 * @param LeaveRoomMessagemsg
+	 */
 	public void handleLeaveRoom(User user,LeaveRoomMessage msg){
-		
-		
+		this.users.remove(user);
+		this.usernames.remove(user.getName(),user);
+		//i need to notify all the users when clement creates an event notification
 	}
-	public void handleJoinRoom(User user,JoinRoomMessage msg){
-		
-	}
+	/*
+	 * Handles the join room message
+	 * @param User user
+	 * @param JooinRoomMessage msg
+	 */
 }
