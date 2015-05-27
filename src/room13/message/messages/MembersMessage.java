@@ -2,6 +2,11 @@ package room13.message.messages;
 
 import room13.message.*;
 
+/**
+ * Request for the list of members in a room
+ * @author Habbes
+ *
+ */
 public class MembersMessage extends BaseRoomMessage {
 
 	public MembersMessage() {

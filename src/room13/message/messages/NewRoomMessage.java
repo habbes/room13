@@ -8,6 +8,7 @@ import room13.message.Message;
 import room13.message.RawMessage;
 
 /**
+ * Request to create a new room on the server
  * @author Habbes
  *
  */

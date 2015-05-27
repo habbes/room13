@@ -10,6 +10,12 @@ import room13.message.Message;
 import room13.message.BodyCoder;
 import room13.message.RawMessage;
 
+/**
+ * Message containing the list of available rooms on the server,
+ * sent as a response to a RoomsMessage
+ * @author Habbes
+ *
+ */
 public class RoomListMessage extends Message {
 	
 	private List<String> roomList;
