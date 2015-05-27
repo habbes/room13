@@ -41,7 +41,6 @@ public class MessageBuilder {
 			throw new InvalidMessageException("Unknown message type.");
 
 		}
-		return null;
 		
 	}
 
