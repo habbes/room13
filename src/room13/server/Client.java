@@ -58,7 +58,9 @@ public class Client {
 	public List<User> getUsers(){
 		return this.users;
 	}
-	
+	/*
+	 * Sends the message
+	 */
 	public void send(Message msg) throws IOException{
 		writer.write(msg);
 	}

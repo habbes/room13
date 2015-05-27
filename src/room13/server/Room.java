@@ -11,12 +11,14 @@ import room13.message.messages.*;
 
 public class Room {
 	
+	private String name;
 	private List<User> users = new ArrayList<User>();
 	private Map<String,User> usernames = new HashMap<String, User>();
 	private int lastId = 0;
 	private String password = "";
 	
-	public Room() {
+	public Room(String name) {
+		this.name = name;
 		// TODO Auto-generated constructor stub
 	}
 	/**
@@ -46,6 +48,20 @@ public class Room {
 	 */
 	private int generateId(){
 		return ++lastId;
+	}
+	/*
+	 * Sets the name of the room
+	 * @param String name
+	 */
+	public void setName(String name){
+		this.name = name;
+	}
+	/*
+	 * Used to get the name of the room
+	 * @return String name
+	 */
+	public String getName(){
+		return this.name;
 	}
 	/**
 	 * Sets a name for the username if the name doesn't exist
@@ -91,14 +107,29 @@ public class Room {
 		user.setAdmin();
 		this.setAdmin(user);
 	}
+	/*
+	 * Adds a user to the room
+	 * @param Client client
+	 * @param String password
+	 * @throws Exception when the password is wrong
+	 */
 	public void addUser(Client client,String pass) throws Exception{
-		if(pass == this.password){
-			User user = new User(client,this,this.generateId());
-			this.users.add(user);
+		/*
+		 *I need to send an event after clement creates it ATTENTION!!!!!!!!! 
+		 */
+		if(pass == this.password){ //check password
+			User user = new User(client,this,this.generateId());  //create user
+			this.users.add(user); //add the user
 		}else{
-			throw new Exception("Wrong password!");
+			throw new Exception("Wrong password!"); //oops!!! something went wrong
 		}
 	}
+	/*
+	 * This is where all messages are routed to their respective handlers depending on the 
+	 * message type
+	 * @param User user
+	 * @param Message msg
+	 */
 	public void handleMessage(User user,Message msg){
 		switch(msg.getMsgId()){
 			case Message.BROADCAST:
@@ -126,6 +157,11 @@ public class Room {
 				
 		}
 	}
+	/*
+	 * Handles any message that needs to be sent
+	 * @param User user
+	 * @param SendMessage msg
+	 */
 	public void handleSend(User user,SendMessage msg){
 		try {
 			User recipient = this.findUser(msg.getRecipient());
@@ -139,19 +175,74 @@ public class Room {
 			e.printStackTrace();
 		}
 	}
+	/*
+	 * Handles any broadcast message
+	 * @param User user
+	 * @param BroadcastMessage msg
+	 */
 	public void handleBroadcast(User user,BroadcastMessage msg){
-		
+		for(User recipient : this.users){
+			try {
+				recipient.send(msg);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
+	/*
+	 * Handles the name change, if the user wants to change their name
+	 * @param user user
+	 * @param NameMessage msg
+	 */
 	public void handleName(User user,NameMessage msg){
-		
+		if(!this.usernames.containsKey(msg.getName())){
+			this.usernames.put(msg.getName(),user);
+			try {
+				user.send(new OkMessage(msg.getReqId()));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else{
+			try {
+				user.send(new ErrorMessage(msg.getReqId(),ErrorMessage.USER_NAME_UNAVAILABLE));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
+	/*
+	 * Handles the members message by returning a list of all the members names
+	 * @param User user
+	 * @param MembersMessage msg
+	 */
 	public void handleMembers(User user,MembersMessage msg){
-		
+		MembersListMessage members = new MembersListMessage(this.name,msg.getReqId());
+		for(String name : this.usernames.keySet()){
+			members.addMember(name);
+		}
+		try {
+			user.send(members);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
+	/*
+	 * Handles the leave room message
+	 * @param User user
+	 * @param LeaveRoomMessagemsg
+	 */
 	public void handleLeaveRoom(User user,LeaveRoomMessage msg){
-		
+		this.users.remove(user);
+		this.usernames.remove(user.getName(),user);
+		//i need to notify all the users when clement creates an event notification
 	}
-	public void handleJoinRoom(User user,JoinRoomMessage msg){
-		
-	}
+	/*
+	 * Handles the join room message
+	 * @param User user
+	 * @param JooinRoomMessage msg
+	 */
 }

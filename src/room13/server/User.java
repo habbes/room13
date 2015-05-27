@@ -46,6 +46,13 @@ public class User {
 		return this.name;
 	}
 	/**
+	 * Returns a client from the user
+	 * @return Client
+	 */
+	public Client getClient(){
+		return this.client;
+	}
+	/**
 	 * Returns a room from the user
 	 * @return
 	 */
