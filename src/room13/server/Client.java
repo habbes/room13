@@ -1,12 +1,17 @@
 package room13.server;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+
+import room13.message.*;
 
 public class Client {
 	
 	private String address;
 	private int port;
+	private MessageWriter writer;
+	private MessageReader reader;
 	
 	private Socket socket;
 	
@@ -16,10 +21,12 @@ public class Client {
 	 * Creates a client 
 	 * @param String address
 	 * @param int port
+	 * @throws IOException 
 	 */
-	public Client(String address, int port) {
-		this.address = address;
-		this.port = port;
+	public Client(Socket sock) throws IOException {
+		socket = sock;
+		writer = new MessageWriter(socket.getOutputStream());
+		reader = new MessageReader(socket.getInputStream());
 	}
 	/**
 	 * Adds a user to its list of users
@@ -50,6 +57,10 @@ public class Client {
 	 */
 	public List<User> getUsers(){
 		return this.users;
+	}
+	
+	public void send(Message msg) throws IOException{
+		writer.write(msg);
 	}
 	
 }

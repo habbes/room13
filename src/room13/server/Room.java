@@ -1,5 +1,6 @@
 package room13.server;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +76,13 @@ public class Room {
 	public List<User> getUsers(){
 		return this.users;
 	}
+	/*
+	 * Returns a User of the name
+	 * @return User user
+	 */
+	public User findUser(String name){
+		return this.usernames.get(name);
+	}
 	/**
 	 * Sets Admin to a room
 	 * @param user
@@ -109,12 +117,27 @@ public class Room {
 				this.handleLeaveRoom(user,(LeaveRoomMessage)msg);
 				break;
 			default:
+			try {
 				user.send(new ErrorMessage(msg.getReqId(),ErrorMessage.ROOM_NOT_FOUND));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 				
 		}
 	}
 	public void handleSend(User user,SendMessage msg){
-		
+		try {
+			User recipient = this.findUser(msg.getRecipient());
+			if(recipient == null){
+				user.send(new ErrorMessage(msg.getReqId(),ErrorMessage.USER_NOT_FOUND));
+			}else{
+				recipient.send(msg);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	public void handleBroadcast(User user,BroadcastMessage msg){
 		
