@@ -75,6 +75,14 @@ public class NewRoomMessage extends Message {
 	}
 	
 	/**
+	 * 
+	 * @return
+	 */
+	public String getRoomName(){
+		return roomName;
+	}
+	
+	/**
 	 * set password of the room, leave unset to create
 	 * a public room
 	 * @param password
@@ -82,6 +90,14 @@ public class NewRoomMessage extends Message {
 	public void setRoomPassword(String password){
 		roomPassword = password;
 		raw.setValue(1, password);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getRoomPassword(){
+		return roomPassword;
 	}
 
 
