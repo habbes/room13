@@ -196,13 +196,7 @@ public class RawMessage {
 	 * @return the encoded message
 	 */
 	public byte[] encode(){
-		
-		int totalLen = PREFIX_LENGTH + contentLength;
-		
-		ByteArrayOutputStream msgStream = new ByteArrayOutputStream();
-		
-		
-		
+		ByteArrayOutputStream msgStream = new ByteArrayOutputStream();		
 		
 		//leave placeholder for the content length to be filled
 		//after length has been computed
@@ -211,9 +205,7 @@ public class RawMessage {
 		} catch (IOException e) {
 		}
 		
-		
 		contentLength = 0;
-		int pos = 7;
 		for(String param : valueParams){
 			msgStream.write((byte) param.length());
 			++contentLength;
