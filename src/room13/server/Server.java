@@ -105,7 +105,18 @@ public class Server {
 	}
 	
 	public void handleNewRoom(Client client, NewRoomMessage msg){
-		
+		String name = msg.getRoomName();
+		if(rooms.containsKey(name)){
+			try {
+				client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_NAME_UNAVAILABLE));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else {
+			
+		}
 	}
 	
 	public void handleKeepAlive(Client client, KeepAliveMessage msg){
