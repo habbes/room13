@@ -19,7 +19,7 @@ public class ErrorMessage extends Message {
 	public static final String GENERIC_ERROR = "Err";
 	public static final String USER_NOT_FOUND = "UsrNtFnd";
 	public static final String USER_NAME_UNAVAILABLE = "NmNtAvai";
-	public static final String ROOM_NAME_UNVAILABLE = "RmNtAvai";
+	public static final String ROOM_NAME_UNAVAILABLE = "RmNtAvai";
 	public static final String ROOM_ACCESS_DENIED = "RmAccDen";
 	public static final String ROOM_NOT_FOUND = "RmNtFnd";
 	
