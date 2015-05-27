@@ -19,31 +19,34 @@ public class Server {
 	List<Client> clients = new ArrayList<Client>();
 	Map<String, Room> rooms = new HashMap<String,Room>();
 	
-	/**
-	 * find the room based on the client and room identifier in the message header
-	 * @param client
-	 * @param msg
-	 * @return
-	 */
-	public Room findRoom(Client client, BaseRoomMessage msg){
-		String name = msg.getRoomName();
-		Room room = rooms.get(name);
-		for(User user : client.getUsers()){
-			if(user.getRoom() == room){
-				return room;
-			}
-		}
-		
-		return null;
-	}
+	
 	
 	/**
 	 * forward message to be handled in the appropriate room
-	 * @param room
-	 * @param user
+	 * @param client
 	 * @param msg
 	 */
-	public void routeMessage(Room room, User user, Message msg){
+	public void routeMessage(Client client, BaseRoomMessage msg){
+		
+		//find room to route message to
+		String name = msg.getRoomName();
+		Room room = rooms.get(name);
+		User user = null;
+		for(User u : client.getUsers()){
+			if(u.getRoom() == room){
+				user = u;
+			}
+		}
+		if(user == null){
+			try {
+				client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_NOT_FOUND));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return;
+		}
+		
 		room.handleMessage(user, msg);
 	}
 
@@ -60,8 +63,25 @@ public class Server {
 		case Message.NEW_ROOM:
 			handleNewRoom(client, (NewRoomMessage) msg);
 			break;
-		
-		
+		case Message.KEEP_ALIVE:
+			handleKeepAlive(client, (KeepAliveMessage) msg);
+			break;
+		case Message.DISCONNECT:	
+			handleDisconnect(client, (DisconnectMessage) msg);
+			break;
+		case Message.BROADCAST:
+		case Message.LEAVE_ROOM:
+		case Message.MEMBERS:
+		case Message.NAME:
+		case Message.SEND:
+			routeMessage(client, (BaseRoomMessage) msg);
+		default:
+			try {
+				client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.GENERIC_ERROR));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -115,16 +135,32 @@ public class Server {
 			}
 		}
 		else {
-			
+			Room room = new Room(name, msg.getRoomPassword());
+			rooms.put(name, room);
+			room.createUser(client, true);
+			try {
+				client.send(new OkMessage());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
 	public void handleKeepAlive(Client client, KeepAliveMessage msg){
-		
+		//do nothing
 	}
 	
 	public void handleDisconnect(Client client, DisconnectMessage msg){
+		//TODO disconnect
 		
+		//TODO notify all rooms
+		for(User user : client.getUsers()){
+			//user.getRoom().notifyDisconnect(user);
+		}
+		
+		//remove client
+		clients.remove(client);
 	}
 	
 
