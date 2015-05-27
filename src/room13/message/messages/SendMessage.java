@@ -14,6 +14,7 @@ import room13.message.RawMessage;
 public class SendMessage extends BaseRoomMessage {
 	
 	private String message;
+	private String sender;
 	private String recipient;
 
 	public SendMessage() {
@@ -44,6 +45,7 @@ public class SendMessage extends BaseRoomMessage {
 		return Message.SEND;
 	}
 	
+	
 	/**
 	 * 
 	 * @param r the user name of the recipient
@@ -53,12 +55,26 @@ public class SendMessage extends BaseRoomMessage {
 		raw.setValue(0, r);
 	}
 	
+	
 	/**
-	 * 
+	 * sets the recipient of the message, this should be set at the client
 	 * @return the user name of the recipient
 	 */
 	public String getRecipient(){
 		return recipient;
+	}
+	
+	/**
+	 * sets the sender of the message, this should be set at the server
+	 * @param s the user name of the sender
+	 */
+	public void setSender(String s){
+		sender = s;
+		raw.setValue(1, s);
+	}
+	
+	public String getSender(){
+		return sender;
 	}
 	
 	public void setMessage(String m){
