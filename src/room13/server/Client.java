@@ -42,5 +42,6 @@ public class Client {
 						e.printStackTrace();
 				}
 			}
+		this.users.remove(user);
 	}
 }
