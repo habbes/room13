@@ -18,9 +18,19 @@ public class Room {
 	private String password = "";
 	
 	public Room(String name) {
-		this.name = name;
-		// TODO Auto-generated constructor stub
+		this(name,"");
 	}
+	
+	public Room(String name, String pass){
+		this.name = name;
+		this.password = pass;
+	}
+	
+	public void setPassword(String pass){
+		password = pass;
+	}
+	
+	
 	/**
 	 * creates a room user from a client appends the user to the users list
 	 * @param Client client
