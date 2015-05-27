@@ -250,9 +250,4 @@ public class Room {
 		this.usernames.remove(user.getName(),user);
 		//i need to notify all the users when clement creates an event notification
 	}
-	/*
-	 * Handles the join room message
-	 * @param User user
-	 * @param JooinRoomMessage msg
-	 */
 }
