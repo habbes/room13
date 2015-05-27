@@ -4,6 +4,9 @@
  */
 package room13.message;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -196,7 +199,57 @@ public class RawMessage {
 		
 		int totalLen = PREFIX_LENGTH + contentLength;
 		
-		byte[] msg = new byte[totalLen];
+		ByteArrayOutputStream msgStream = new ByteArrayOutputStream();
+		
+		
+		
+		
+		//leave placeholder for the content length to be filled
+		//after length has been computed
+		try {
+			msgStream.write(new byte[]{0,0,0,0,reqId,respId,msgId});
+		} catch (IOException e) {
+		}
+		
+		
+		contentLength = 0;
+		int pos = 7;
+		for(String param : valueParams){
+			msgStream.write((byte) param.length());
+			++contentLength;
+			for(char c : param.toCharArray()){
+				msgStream.write((byte) c);
+				++contentLength;
+			}
+		}
+		
+		String value;
+		for(String key : dictParams.keySet()){
+			value = dictParams.get(key);
+			msgStream.write((byte) (-key.length()));
+			++contentLength;
+			for(char c : key.toCharArray()){
+				msgStream.write((byte) c);
+				++contentLength;
+			}
+			msgStream.write((byte) value.length());
+			++contentLength;
+			for(char c : value.toCharArray()){
+				msgStream.write((byte) c);
+				++contentLength;
+			}
+		}
+		
+		if(body != null && body.length != 0){
+			msgStream.write(0);
+			++contentLength;
+			for(byte b : body){
+				msgStream.write(b);
+				++contentLength;
+			}
+		}
+		
+		byte[] msg = msgStream.toByteArray();
 		
 		//prefix the message with the content length
 		ByteBuffer lenBuffer = ByteBuffer.allocate(4);
@@ -204,36 +257,6 @@ public class RawMessage {
 		lenBuffer.putInt(contentLength);
 		for(int i = 0; i < 4; i++){
 			msg[i] = lenBuffer.get(i);
-		}
-		msg[4] = reqId;
-		msg[5] = respId;
-		msg[6] = msgId;
-		int pos = 7;
-		for(String param : valueParams){
-			msg[pos++] = (byte) param.length();
-			for(char c : param.toCharArray()){
-				msg[pos++] = (byte) c;
-			}
-		}
-		
-		String value;
-		for(String key : dictParams.keySet()){
-			value = dictParams.get(key);
-			msg[pos++] = (byte) (- key.length());
-			for(char c : key.toCharArray()){
-				msg[pos++] = (byte) c;
-			}
-			msg[pos++] = (byte) value.length();
-			for(char c : value.toCharArray()){
-				msg[pos++] = (byte) c;
-			}
-		}
-		
-		if(body != null && body.length != 0){
-			msg[pos++] = (byte) 0;
-			for(byte b : body){
-				msg[pos++] = b;
-			}
 		}
 		
 		return msg;

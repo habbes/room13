@@ -33,11 +33,11 @@ public class MessageStreamTest {
 		assertEquals("req id correct",10, received.getReqId());
 		assertEquals("resp id correct",0, received.getRespId());
 		assertEquals("value params size correct",2,received.getValueParams().size());
-		assertTrue("value param 1 correct","val1" == received.getValue(0));
-		assertTrue("value param 2 correct","val2" == received.getValue(1));
-		assertTrue("key param 1 correct","val1" == received.getDictValue("key1"));
-		assertTrue("key param 2 correct","val2" == received.getDictValue("key2"));
-		assertTrue("body correct","This is a test" == BodyCoder.decodeText(received.getBody()));
+		assertTrue("value param 1 correct","val1".equals(received.getValue(0)));
+		assertTrue("value param 2 correct","val2".equals(received.getValue(1)));
+		assertTrue("key param 1 correct","val1".equals(received.getDictValue("key1")));
+		assertTrue("key param 2 correct","val2".equals(received.getDictValue("key2")));
+		assertTrue("body correct","This is a test".equals(BodyCoder.decodeText(received.getBody())));
 		
 	}
 
