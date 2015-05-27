@@ -43,4 +43,12 @@ public class Client {
 				}
 			}
 	}
+	/*
+	 * Returns the list of all users
+	 * @return List<User> users
+	 */
+	public List<User> getUsers(){
+		return this.users;
+	}
+	
 }

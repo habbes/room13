@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import room13.message.Message;
+import room13.message.messages.*;
+
 public class Room {
 	
 	private List<User> users = new ArrayList<User>();
@@ -79,5 +82,53 @@ public class Room {
 	public void setAdmin(User user){
 		user.setAdmin();
 		this.setAdmin(user);
+	}
+	public void addUser(Client client,String pass) throws Exception{
+		if(pass == this.password){
+			User user = new User(client,this,this.generateId());
+			this.users.add(user);
+		}else{
+			throw new Exception("Wrong password!");
+		}
+	}
+	public void handleMessage(User user,Message msg){
+		switch(msg.getMsgId()){
+			case Message.BROADCAST:
+				this.handleBroadcast(user,(BroadcastMessage)msg);
+				break;
+			case Message.SEND:
+				this.handleSend(user,(SendMessage)msg);
+				break;
+			case Message.NAME:
+				this.handleName(user,(NameMessage)msg);
+				break;
+			case Message.MEMBERS:
+				this.handleMembers(user,(MembersMessage)msg);
+				break;
+			case Message.LEAVE_ROOM:
+				this.handleLeaveRoom(user,(LeaveRoomMessage)msg);
+				break;
+			default:
+				user.send(new ErrorMessage(msg.getReqId(),ErrorMessage.ROOM_NOT_FOUND));
+				
+		}
+	}
+	public void handleSend(User user,SendMessage msg){
+		
+	}
+	public void handleBroadcast(User user,BroadcastMessage msg){
+		
+	}
+	public void handleName(User user,NameMessage msg){
+		
+	}
+	public void handleMembers(User user,MembersMessage msg){
+		
+	}
+	public void handleLeaveRoom(User user,LeaveRoomMessage msg){
+		
+	}
+	public void handleJoinRoom(User user,JoinRoomMessage msg){
+		
 	}
 }

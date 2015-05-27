@@ -21,6 +21,7 @@ public class ErrorMessage extends Message {
 	public static final String USER_NAME_UNAVAILABLE = "NmNtAvai";
 	public static final String ROOM_NAME_UNVAILABLE = "RmNtAvai";
 	public static final String ROOM_ACCESS_DENIED = "RmAccDen";
+	public static final String ROOM_NOT_FOUND = "RmNtFnd";
 	
 	public ErrorMessage() {
 		
