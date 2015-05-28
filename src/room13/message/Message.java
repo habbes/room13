@@ -9,18 +9,19 @@ public abstract class Message {
 	//ids for the different types of messages
 	public static final int ERROR = 1;
 	public static final int OK = 2;
-	public static final int KEEP_ALIVE = 3;
-	public static final int DISCONNECT = 4;
-	public static final int ROOMS = 5;
-	public static final int ROOM_LIST = 6;
-	public static final int NEW_ROOM =7;
-	public static final int JOIN_ROOM = 8;
-	public static final int LEAVE_ROOM = 9;
-	public static final int SEND = 10;
-	public static final int BROADCAST = 11;
-	public static final int NAME = 12;
-	public static final int MEMBERS = 13;
-	public static final int MEMBERS_LIST = 14;
+	public static final int EVENT = 3;
+	public static final int KEEP_ALIVE = 4;
+	public static final int DISCONNECT = 5;
+	public static final int ROOMS = 6;
+	public static final int ROOM_LIST = 7;
+	public static final int NEW_ROOM = 8;
+	public static final int JOIN_ROOM = 9;
+	public static final int LEAVE_ROOM = 10;
+	public static final int SEND = 11;
+	public static final int BROADCAST = 12;
+	public static final int NAME = 13;
+	public static final int MEMBERS = 14;
+	public static final int MEMBERS_LIST = 15;
 
 	
 	public Message(){
