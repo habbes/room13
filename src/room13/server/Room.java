@@ -117,14 +117,11 @@ public class Room {
 	}
 	/*
 	 * Adds a user to the room
-	 * @param Client client
-	 * @param String password
+	 * @param client
+	 * @param password
 	 * @throws Exception when the password is wrong
 	 */
 	public void addUser(Client client,String pass) throws Exception{
-		/*
-		 *I need to send an event after clement creates it ATTENTION!!!!!!!!! 
-		 */
 		if(pass == this.password){ //check password
 			User user = new User(client,this,this.generateId());  //create user
 			this.users.add(user); //add the user
@@ -163,21 +160,47 @@ public class Room {
 	
 	
 	/**
-	 * Notifies users that a user has been disconnected and removes user from the room
+	 * Notifies users that a user has been disconnected and removes the user from the room
 	 * @param username
 	 * @throws Exception
 	 */
 	public void notifyUserDisconnected(User user){
-		Message msg = new UserDisconnectedEventMessage(user.getName());
-		sendBroadcast(msg, user);
 		removeUser(user);
+		sendBroadcast(new UserDisconnectedEventMessage(user.getName()));
+	}
+	
+	/**
+	 * Notifies users that a user has left the room and removes the user from the room
+	 * @param user
+	 * @param msg
+	 */
+	public void notifyUserLeft(User user){
+		removeUser(user);
+		sendBroadcast(new UserLeftEventMessage(user.getName()));
+	}
+	
+	/**
+	 * Notifies users that a user has joined the room
+	 * @param user
+	 */
+	public void notifyUserJoined(User user){
+		sendBroadcast(new UserJoinedEventMessage(user.getName()), user);
+	}
+	
+	/**
+	 * Notifies users that a user has change names
+	 * @param user
+	 * @param oldName the user's old name
+	 */
+	public void notifyUserNameChanged(User user, String oldName){
+		sendBroadcast(new UserNameChangedEventMessage(oldName, user.getName()));
 	}
 	
 	/*
 	 * This is where all messages are routed to their respective handlers depending on the 
 	 * message type
-	 * @param User user
-	 * @param Message msg
+	 * @param user
+	 * @param msg
 	 */
 	public void handleMessage(User user,Message msg){
 		switch(msg.getMsgId()){
@@ -208,8 +231,8 @@ public class Room {
 	}
 	/*
 	 * Handles any message that needs to be sent
-	 * @param User user
-	 * @param SendMessage msg
+	 * @param user
+	 * @param msg
 	 */
 	public void handleSend(User user,SendMessage msg){
 		try {
@@ -218,6 +241,7 @@ public class Room {
 				user.send(new ErrorMessage(msg.getReqId(),ErrorMessage.USER_NOT_FOUND));
 			}else{
 				recipient.send(msg);
+				user.send(new OkMessage(msg.getReqId()));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -231,6 +255,9 @@ public class Room {
 	 */
 	public void handleBroadcast(User user,BroadcastMessage msg){
 		sendBroadcast(msg, user);
+		try {
+			user.send(new OkMessage(msg.getReqId()));
+		} catch (IOException e) {}
 	}
 	/*
 	 * Handles the name change, if the user wants to change their name
@@ -242,6 +269,7 @@ public class Room {
 			this.usernames.put(msg.getName(),user);
 			try {
 				user.send(new OkMessage(msg.getReqId()));
+				notifyUserNameChanged(user, msg.getName());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -278,8 +306,6 @@ public class Room {
 	 * @param LeaveRoomMessagemsg
 	 */
 	public void handleLeaveRoom(User user,LeaveRoomMessage msg){
-		this.users.remove(user);
-		this.usernames.remove(user.getName(),user);
-		//i need to notify all the users when clement creates an event notification
+		notifyUserLeft(user);
 	}
 }
