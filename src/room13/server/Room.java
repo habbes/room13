@@ -225,19 +225,12 @@ public class Room {
 		}
 	}
 	/*
-	 * Handles any broadcast message
-	 * @param User user
+	 * Handles a user defined broadcast message
+	 * @param User user the sender
 	 * @param BroadcastMessage msg
 	 */
 	public void handleBroadcast(User user,BroadcastMessage msg){
-		for(User recipient : this.users){
-			try {
-				recipient.send(msg);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		sendBroadcast(msg, user);
 	}
 	/*
 	 * Handles the name change, if the user wants to change their name
