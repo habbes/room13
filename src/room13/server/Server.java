@@ -154,9 +154,8 @@ public class Server {
 	public void handleDisconnect(Client client, DisconnectMessage msg){
 		//TODO disconnect
 		
-		//TODO notify all rooms
 		for(User user : client.getUsers()){
-			//user.getRoom().notifyDisconnect(user);
+			user.getRoom().notifyUserDisconnected(user);
 		}
 		
 		//remove client
