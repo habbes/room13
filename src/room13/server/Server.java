@@ -111,8 +111,9 @@ public class Server {
 		}
 		else {
 			try {
-				room.addUser(client, msg.getRoomPassword());
+				User user = room.addUser(client, msg.getRoomPassword());
 				client.send(new OkMessage(msg.getReqId()));
+				room.notifyUserJoined(user);
 			} catch (Exception e) {
 				try {
 					client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_ACCESS_DENIED));
