@@ -89,9 +89,7 @@ public class Room {
 	 * Removes a user from a room
 	 * @param User user 
 	 */
-	public void removeUser(User user) throws Exception{
-		if(!this.users.contains(user))
-			throw new Exception("User doesnt exist");
+	public void removeUser(User user){
 		this.users.remove(user);
 		this.usernames.remove(user.getName());
 	}
@@ -134,6 +132,47 @@ public class Room {
 			throw new Exception("Wrong password!"); //oops!!! something went wrong
 		}
 	}
+	
+	/**
+	 * Sends a message to all users in the room
+	 * @param msg
+	 */
+	public void sendBroadcast(Message msg){
+		for(User user : users){
+			try {
+				user.send(msg);
+			} catch (IOException e) {}
+		}
+	}
+	
+	/**
+	 * Sends a message to all users in the room except the specified
+	 * user to ignore
+	 * @param msg
+	 * @param ignoreUser
+	 */
+	public void sendBroadcast(Message msg, User ignoreUser){
+		for(User user : users){
+			if(user != ignoreUser){
+				try {
+					user.send(msg);
+				} catch (IOException e) {}
+			}
+		}
+	}
+	
+	
+	/**
+	 * Notifies users that a user has been disconnected and removes user from the room
+	 * @param username
+	 * @throws Exception
+	 */
+	public void notifyUserDisconnected(User user){
+		Message msg = new UserDisconnectedEventMessage(user.getName());
+		sendBroadcast(msg, user);
+		removeUser(user);
+	}
+	
 	/*
 	 * This is where all messages are routed to their respective handlers depending on the 
 	 * message type
