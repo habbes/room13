@@ -55,8 +55,8 @@ public class Room {
 		return user;
 	}
 	/**
-	 * returns a new last id (adds one to the current last id)
-	 * @return int (lastId + 1)
+	 * returns a new unique id
+	 * @return int
 	 */
 	private int generateId(){
 		return ++lastId;
