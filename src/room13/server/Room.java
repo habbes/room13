@@ -35,8 +35,8 @@ public class Room {
 	 * creates a room user from a client appends the user to the users list
 	 * @param Client client
 	 */
-	public void createUser(Client client){
-		this.createUser(client,false);
+	public User createUser(Client client){
+		return createUser(client,false);
 	}
 	/**
 	 * creates a room user from a client appends 
@@ -44,13 +44,15 @@ public class Room {
 	 * @param Client client
 	 * @param Boolean isAdmin
 	 */
-	public void createUser(Client client,Boolean isAdmin){
+	public User createUser(Client client,Boolean isAdmin){
 		int id = this.generateId();
 		User user = new User(client,this,id);
 		if(isAdmin){
 			user.setAdmin();
 			this.setAdmin(user);
 		}
+		users.add(user);
+		return user;
 	}
 	/**
 	 * returns a new last id (adds one to the current last id)
@@ -121,10 +123,11 @@ public class Room {
 	 * @param password
 	 * @throws Exception when the password is wrong
 	 */
-	public void addUser(Client client,String pass) throws Exception{
+	public User addUser(Client client,String pass) throws Exception{
 		if(pass == this.password){ //check password
 			User user = new User(client,this,this.generateId());  //create user
 			this.users.add(user); //add the user
+			return user;
 		}else{
 			throw new Exception("Wrong password!"); //oops!!! something went wrong
 		}
