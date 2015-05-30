@@ -8,8 +8,7 @@ import room13.message.*;
 
 public class Client {
 	
-	private String address;
-	private int port;
+	
 	private MessageWriter writer;
 	private MessageReader reader;
 	
@@ -28,6 +27,13 @@ public class Client {
 		writer = new MessageWriter(socket.getOutputStream());
 		reader = new MessageReader(socket.getInputStream());
 	}
+	
+	public void disconnect(){
+		try {
+			socket.close();
+		} catch (IOException e) {}
+	}
+	
 	/**
 	 * Adds a user to its list of users
 	 * @param User user
@@ -64,5 +70,7 @@ public class Client {
 	public void send(Message msg) throws IOException{
 		writer.write(msg);
 	}
+	
+	
 	
 }
