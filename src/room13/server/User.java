@@ -3,7 +3,6 @@ package room13.server;
 import java.io.IOException;
 
 import room13.message.Message;
-import room13.message.messages.ErrorMessage;
 
 public class User {
 
@@ -45,6 +44,15 @@ public class User {
 	public String getName(){
 		return this.name;
 	}
+	
+	/**
+	 * gets the room-assigned unique id of the user
+	 * @return
+	 */
+	public int getId(){
+		return id;
+	}
+	
 	/**
 	 * Returns a client from the user
 	 * @return Client
