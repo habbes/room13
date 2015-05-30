@@ -71,6 +71,15 @@ public class Client {
 		writer.write(msg);
 	}
 	
+	/**
+	 * waits for an incoming and reads it
+	 * @return
+	 * @throws IOException
+	 */
+	public Message receive() throws IOException{
+		return MessageBuilder.build(reader.read());
+	}
+	
 	
 	
 }
