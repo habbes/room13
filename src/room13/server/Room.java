@@ -50,7 +50,7 @@ public class Room {
 		if(isAdmin){
 			user.setAdmin();
 			this.setAdmin(user);
-		}
+		} 
 		users.add(user);
 		return user;
 	}
