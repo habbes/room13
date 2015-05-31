@@ -1,6 +1,5 @@
 package room13.server;
 
-import java.io.IOException;
 
 import room13.message.Message;
 
@@ -8,7 +7,7 @@ public class User {
 
 	private String name = "";
 	private boolean isAdmin = false;
-	private Client client;
+	private ClientHandler client;
 	private Room room;
 	private int id = 0;
 	
@@ -17,7 +16,7 @@ public class User {
 	 * @param Client client
 	 * @param int id
 	 */
-	public User(Client client,Room room, int id) {
+	public User(ClientHandler client,Room room, int id) {
 		this.client = client;
 		this.room = room;
 		this.id = id;
@@ -42,7 +41,7 @@ public class User {
 	 * @return string name
 	 */
 	public String getName(){
-		return this.name;
+		return name;
 	}
 	
 	/**
@@ -57,7 +56,7 @@ public class User {
 	 * Returns a client from the user
 	 * @return Client
 	 */
-	public Client getClient(){
+	public ClientHandler getClient(){
 		return this.client;
 	}
 	/**
@@ -73,8 +72,9 @@ public class User {
 	public void setAdmin(){
 		this.isAdmin = true;
 	}
-	public void send(Message msg) throws IOException {
-			this.client.send(msg);		
+	
+	public void send(Message msg){
+		client.sendMessage(msg);		
 	}
 
 }
