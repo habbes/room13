@@ -39,9 +39,10 @@ public class MessageReader {
 	/**
 	 * read a message from the stream
 	 * @return the message read
-	 * @throws IOException
+	 * @throws IOException when I/O error occurs while reading the stream
+	 * @throws RemoteConnectionClosedException when the stream returns -1
 	 */
-	public RawMessage read() throws IOException{
+	public RawMessage read() throws IOException, RemoteConnectionClosedException{
 		ByteBuffer lenbuf = ByteBuffer.allocate(4);
 		lenbuf.order(ByteOrder.BIG_ENDIAN);
 		for(int i = 0; i < 4; i++){
@@ -51,7 +52,12 @@ public class MessageReader {
 		
 		byte[] encoded = new byte[length];
 		
-		if(stream.read(encoded) != length)
+		int bytesRead = stream.read(encoded);
+		
+		if(bytesRead == -1){
+			throw new RemoteConnectionClosedException();
+		}
+		else if(stream.read(encoded) != length)
 		{
 			throw new IncorrectMessageLengthException("The message is too short");
 		}
