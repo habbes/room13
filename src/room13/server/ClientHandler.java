@@ -17,19 +17,35 @@ public class ClientHandler implements Runnable {
 	private Client client;
 	private Server server;
 	
+	/**
+	 * 
+	 * @param client the client to handle
+	 * @param server the server to which the client is connected
+	 */
 	public ClientHandler(Client client, Server server){
 		this.client = client;
 		this.server = server;
 	}
 	
+	/**
+	 * Gets the Client being handled
+	 * @return
+	 */
 	public Client getClient(){
 		return client;
 	}
 	
+	/**
+	 * Runs the message handling loop. This meant to be run
+	 * in its own thread.
+	 */
 	public void run(){
 		handleClient();
 	}
 	
+	/**
+	 * Handles incoming messages from the client
+	 */
 	public void handleClient(){
 		
 		while(true){
@@ -95,7 +111,11 @@ public class ClientHandler implements Runnable {
 		
 		room.handleMessage(user, msg);
 	}
-
+	
+	/**
+	 * Handles a message from the client based on the message type
+	 * @param msg
+	 */
 	public void handleMessage(Message msg){
 		switch(msg.getMsgId()){
 		case Message.ROOMS:
@@ -126,6 +146,10 @@ public class ClientHandler implements Runnable {
 		}
 	}
 	
+	/**
+	 * Handles request for a list of rooms
+	 * @param msg
+	 */
 	public void handleRooms(RoomsMessage msg){
 		RoomListMessage resp = new RoomListMessage(msg.getReqId());
 		for(String name : server.getRoomNames()){
@@ -135,6 +159,10 @@ public class ClientHandler implements Runnable {
 		
 	}
 	
+	/**
+	 * Handles request to join a room
+	 * @param msg
+	 */
 	public void handleJoinRoom(JoinRoomMessage msg){
 		Room room = server.getRoom(msg.getRoomName());
 		if(room == null){
@@ -151,6 +179,10 @@ public class ClientHandler implements Runnable {
 		}
 	}
 	
+	/**
+	 * Handles request to create a room
+	 * @param msg
+	 */
 	public void handleNewRoom(NewRoomMessage msg){
 		Room room = server.createRoom(msg.getRoomName(), msg.getRoomPassword());
 		if(room == null){
@@ -162,14 +194,25 @@ public class ClientHandler implements Runnable {
 		}
 	}
 	
+	/**
+	 * Handles request to keep connection alive
+	 * @param msg
+	 */
 	public void handleKeepAlive(KeepAliveMessage msg){
 		//do nothing
 	}
 	
+	/**
+	 * Handles request to disconnect from server
+	 * @param msg
+	 */
 	public void handleDisconnect(DisconnectMessage msg){
 		handleDisconnect();
 	}
 	
+	/**
+	 * Disconnects from the client and notifies concerned rooms
+	 */
 	public void handleDisconnect(){
 		
 		client.disconnect();
