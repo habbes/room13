@@ -1,167 +1,127 @@
 package room13.server;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import room13.message.*;
-import room13.message.messages.*;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class Server {
-
-	public Server() {
-		// TODO Auto-generated constructor stub
-	}
 	
-	List<Client> clients = new ArrayList<Client>();
-	Map<String, Room> rooms = new HashMap<String,Room>();
-	
-	
+	private ServerSocket socket;
 	
 	/**
-	 * forward message to be handled in the appropriate room
-	 * @param client
-	 * @param msg
+	 * used to execute ClientHandlers asynchronously
 	 */
-	public void routeMessage(Client client, BaseRoomMessage msg){
-		
-		//find room to route message to
-		String name = msg.getRoomName();
-		Room room = rooms.get(name);
-		User user = null;
-		for(User u : client.getUsers()){
-			if(u.getRoom() == room){
-				user = u;
-			}
-		}
-		if(user == null){
-			try {
-				client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_NOT_FOUND));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return;
-		}
-		
-		room.handleMessage(user, msg);
-	}
-
-	public void handleMessage(Client client, Message msg){
-		switch(msg.getMsgId()){
-		case Message.ROOMS:
-			handleRooms(client, (RoomsMessage) msg);
-			break;
-		
-		case Message.JOIN_ROOM:
-			handleJoinRoom(client, (JoinRoomMessage) msg);
-			break;
-		
-		case Message.NEW_ROOM:
-			handleNewRoom(client, (NewRoomMessage) msg);
-			break;
-		case Message.KEEP_ALIVE:
-			handleKeepAlive(client, (KeepAliveMessage) msg);
-			break;
-		case Message.DISCONNECT:	
-			handleDisconnect(client, (DisconnectMessage) msg);
-			break;
-		case Message.BROADCAST:
-		case Message.LEAVE_ROOM:
-		case Message.MEMBERS:
-		case Message.NAME:
-		case Message.SEND:
-			routeMessage(client, (BaseRoomMessage) msg);
-		default:
-			try {
-				client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.GENERIC_ERROR));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+	private ExecutorService handlerExecutor;
+	
+	private boolean terminateRequested = false;
+	
+	public static final int DEFAULT_PORT = 13500;
+	public static final int DEFAULT_TIMEOUT = 1000;
+	
+	/**
+	 * Creates a server and binds it to the specified port
+	 * @param port
+	 * @throws IOException
+	 */
+	public Server(int port) throws IOException {
+		socket = new ServerSocket(port);
+		socket.setSoTimeout(DEFAULT_TIMEOUT);
+		handlerExecutor = Executors.newCachedThreadPool();
 	}
 	
-	public void handleRooms(Client client, RoomsMessage msg){
-		RoomListMessage resp = new RoomListMessage(msg.getReqId());
-		for(String name : rooms.keySet()){
-			resp.addRoom(name);
-		}
-		try {
-			client.send(resp);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+	/**
+	 * Creates a server and binds it to the DEFAULT_PORT
+	 * @throws IOException
+	 */
+	public Server() throws IOException{
+		this(DEFAULT_PORT);
 	}
 	
-	public void handleJoinRoom(Client client, JoinRoomMessage msg){
-		Room room = rooms.get(msg.getRoomName());
-		if(room == null){
-			try {
-				client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_NOT_FOUND));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		else {
-			try {
-				User user = room.addUser(client, msg.getRoomPassword());
-				client.send(new OkMessage(msg.getReqId()));
-				room.notifyUserJoined(user);
-			} catch (Exception e) {
-				try {
-					client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_ACCESS_DENIED));
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		}
+	List<ClientHandler> clientHandlers = new ArrayList<ClientHandler>();
+	Map<String, Room> rooms = new HashMap<String,Room>();
+	
+	/**
+	 * gets the room with the specified name
+	 * @param name
+	 * @return
+	 */
+	public synchronized Room getRoom(String name){
+		return rooms.get(name);
 	}
 	
-	public void handleNewRoom(Client client, NewRoomMessage msg){
-		String name = msg.getRoomName();
-		if(rooms.containsKey(name)){
-			try {
-				client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_NAME_UNAVAILABLE));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		else {
-			Room room = new Room(name, msg.getRoomPassword());
-			rooms.put(name, room);
-			room.createUser(client, true);
-			try {
-				client.send(new OkMessage());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+	/**
+	 * gets the sets of the names of all the rooms
+	 * @return
+	 */
+	public synchronized Set<String> getRoomNames(){
+		return rooms.keySet();
 	}
 	
-	public void handleKeepAlive(Client client, KeepAliveMessage msg){
-		//do nothing
+	/**
+	 * Creates a new room with the given name and password, if the name is available
+	 * @param name
+	 * @param password
+	 * @return the created Room, or null if the name is not available
+	 */
+	public synchronized Room createRoom(String name, String password){
+		if(rooms.containsKey(name))
+			return null;
+		Room room = new Room(name, password);
+		rooms.put(name, room);
+		return room;
 	}
 	
-	public void handleDisconnect(Client client, DisconnectMessage msg){
-		
-		client.disconnect();
-		
-		for(User user : client.getUsers()){
-			user.getRoom().notifyUserDisconnected(user);
+	/**
+	 * removes a ClientHandler from the server's list
+	 * @param handler
+	 */
+	public void removeClientHandler(ClientHandler handler){
+		clientHandlers.remove(handler);
+	}
+	
+	/**
+	 * add a ClientHandler to the server's list
+	 * @param handler
+	 */
+	public void addClientHandler(ClientHandler handler){
+		clientHandlers.add(handler);
+	}
+	
+	/**
+	 * Request connection handler loop to terminate
+	 */
+	public void requestTerminate(){
+		terminateRequested = true;
+	}
+	
+	/**
+	 * listens for incoming client connections and assign them handlers
+	 */
+	public void handleConnections(){
+		while(!terminateRequested){
+			try{
+				Socket clientSocket = socket.accept();
+				ClientHandler handler = new ClientHandler(new Client(clientSocket), this);
+				addClientHandler(handler);
+				handlerExecutor.submit(handler);
+			}
+			catch(InterruptedIOException e){
+				continue;
+			}
+			catch(IOException e){
+				break;
+			}
+			
 		}
-		
-		//remove client
-		clients.remove(client);
 	}
 	
 

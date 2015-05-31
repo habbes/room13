@@ -6,6 +6,11 @@ import java.util.List;
 
 import room13.message.*;
 
+/**
+ * represents a connected client
+ * @author Habbes
+ *
+ */
 public class Client {
 	
 	
@@ -16,6 +21,10 @@ public class Client {
 	
 	private List<User> users = new ArrayList<User>();
 	
+	private boolean connected = true;
+	
+	public final static int DEFAULT_TIMEOUT = 1000;
+	
 	/**
 	 * Creates a client 
 	 * @param String address
@@ -24,14 +33,10 @@ public class Client {
 	 */
 	public Client(Socket sock) throws IOException {
 		socket = sock;
+		socket.setSoTimeout(DEFAULT_TIMEOUT);
 		writer = new MessageWriter(socket.getOutputStream());
 		reader = new MessageReader(socket.getInputStream());
-	}
-	
-	public void disconnect(){
-		try {
-			socket.close();
-		} catch (IOException e) {}
+		connected = true;
 	}
 	
 	/**
@@ -41,22 +46,7 @@ public class Client {
 	public void addUser(User user){
 		this.users.add(user);
 	}
-	/**
-	 * Removes the user
-	 * notifies the rooms connected to the user the user has left
-	 * @params User user
-	 */
-	public void removeUser(User user){
-			for(User existingUser : this.users){
-				Room room = existingUser.getRoom();
-					try{
-						room.removeUser(user);
-					}catch (Exception e){
-						e.printStackTrace();
-				}
-			}
-		this.users.remove(user);
-	}
+	
 	/*
 	 * Returns the list of all users
 	 * @return List<User> users
@@ -64,22 +54,43 @@ public class Client {
 	public List<User> getUsers(){
 		return this.users;
 	}
+	
+	/**
+	 * checks whether the client is connected to the server
+	 * @return
+	 */
+	public boolean isConnected(){
+		return connected;
+	}
+	
+	/**
+	 * Disconnect from the client connection
+	 */
+	public void disconnect(){
+		if(connected){
+			try {
+				socket.close();
+				connected = false;
+			} catch (IOException e) {}
+		}
+	}
+	
 	/*
 	 * Sends the message
 	 */
 	public void send(Message msg) throws IOException{
-		writer.write(msg);
+		writer.write(msg);	
 	}
 	
 	/**
-	 * waits for an incoming and reads it
-	 * @return
-	 * @throws IOException
+	 * waits for an incoming message and reads it
+	 * @return the Message read, or null if remote peer disconnected
+	 * @throws RemoteConnectionClosedException 
+	 * @throws IOException 
+	 * @throws MessageException
 	 */
-	public Message receive() throws IOException{
+	public Message receive() throws IOException, RemoteConnectionClosedException{
 		return MessageBuilder.build(reader.read());
-	}
-	
-	
+	}	
 	
 }
