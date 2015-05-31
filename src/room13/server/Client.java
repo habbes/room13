@@ -64,23 +64,18 @@ public class Client {
 	/*
 	 * Sends the message
 	 */
-	public void send(Message msg){
-		
-		try {
-			writer.write(msg);
-		} catch (IOException e) {
-			disconnect();
-			//RUN EVENT HANDLERS
-		}
-		
+	public void send(Message msg) throws IOException{
+		writer.write(msg);	
 	}
 	
 	/**
-	 * waits for an incoming and reads it
-	 * @return
-	 * @throws IOException
+	 * waits for an incoming message and reads it
+	 * @return the Message read, or null if remote peer disconnected
+	 * @throws RemoteConnectionClosedException 
+	 * @throws IOException 
+	 * @throws MessageException
 	 */
-	public Message receive() throws IOException{
+	public Message receive() throws IOException, RemoteConnectionClosedException{
 		return MessageBuilder.build(reader.read());
 	}
 	
