@@ -1,6 +1,5 @@
 package room13.server;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +34,7 @@ public class Room {
 	 * creates a room user from a client appends the user to the users list
 	 * @param Client client
 	 */
-	public User createUser(Client client){
+	public User createUser(ClientHandler client){
 		return createUser(client,false);
 	}
 	/**
@@ -44,7 +43,7 @@ public class Room {
 	 * @param Client client
 	 * @param Boolean isAdmin
 	 */
-	public User createUser(Client client,Boolean isAdmin){
+	public User createUser(ClientHandler client,Boolean isAdmin){
 		int id = this.generateId();
 		User user = new User(client,this,id);
 		if(isAdmin){
@@ -92,7 +91,7 @@ public class Room {
 	 * @param User user 
 	 */
 	public void removeUser(User user){
-		this.users.remove(user);
+		users.remove(user);
 		this.usernames.remove(user.getName());
 	}
 	/**
@@ -123,10 +122,10 @@ public class Room {
 	 * @param password
 	 * @throws Exception when the password is wrong
 	 */
-	public User addUser(Client client,String pass) throws Exception{
+	public User addUser(ClientHandler client,String pass) throws Exception{
 		if(pass == this.password){ //check password
 			User user = new User(client,this,this.generateId());  //create user
-			this.users.add(user); //add the user
+			users.add(user); //add the user
 			return user;
 		}else{
 			throw new Exception("Wrong password!"); //oops!!! something went wrong
@@ -139,9 +138,7 @@ public class Room {
 	 */
 	public void sendBroadcast(Message msg){
 		for(User user : users){
-			try {
-				user.send(msg);
-			} catch (IOException e) {}
+			user.send(msg);
 		}
 	}
 	
@@ -154,9 +151,7 @@ public class Room {
 	public void sendBroadcast(Message msg, User ignoreUser){
 		for(User user : users){
 			if(user != ignoreUser){
-				try {
-					user.send(msg);
-				} catch (IOException e) {}
+				user.send(msg);
 			}
 		}
 	}
@@ -223,13 +218,7 @@ public class Room {
 				this.handleLeaveRoom(user,(LeaveRoomMessage)msg);
 				break;
 			default:
-			try {
-				user.send(new ErrorMessage(msg.getReqId(),ErrorMessage.ROOM_NOT_FOUND));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-				
+				user.send(new ErrorMessage(msg.getReqId(),ErrorMessage.ROOM_NOT_FOUND));				
 		}
 	}
 	/*
@@ -238,17 +227,12 @@ public class Room {
 	 * @param msg
 	 */
 	public void handleSend(User user,SendMessage msg){
-		try {
-			User recipient = this.findUser(msg.getRecipient());
-			if(recipient == null){
-				user.send(new ErrorMessage(msg.getReqId(),ErrorMessage.USER_NOT_FOUND));
-			}else{
-				recipient.send(msg);
-				user.send(new OkMessage(msg.getReqId()));
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		User recipient = this.findUser(msg.getRecipient());
+		if(recipient == null){
+			user.send(new ErrorMessage(msg.getReqId(),ErrorMessage.USER_NOT_FOUND));
+		}else{
+			recipient.send(msg);
+			user.send(new OkMessage(msg.getReqId()));
 		}
 	}
 	/*
@@ -258,9 +242,7 @@ public class Room {
 	 */
 	public void handleBroadcast(User user,BroadcastMessage msg){
 		sendBroadcast(msg, user);
-		try {
-			user.send(new OkMessage(msg.getReqId()));
-		} catch (IOException e) {}
+		user.send(new OkMessage(msg.getReqId()));
 	}
 	/*
 	 * Handles the name change, if the user wants to change their name
@@ -270,20 +252,10 @@ public class Room {
 	public void handleName(User user,NameMessage msg){
 		if(!this.usernames.containsKey(msg.getName())){
 			this.usernames.put(msg.getName(),user);
-			try {
-				user.send(new OkMessage(msg.getReqId()));
-				notifyUserNameChanged(user, msg.getName());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			user.send(new OkMessage(msg.getReqId()));
+			notifyUserNameChanged(user, msg.getName());
 		}else{
-			try {
-				user.send(new ErrorMessage(msg.getReqId(),ErrorMessage.USER_NAME_UNAVAILABLE));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			user.send(new ErrorMessage(msg.getReqId(),ErrorMessage.USER_NAME_UNAVAILABLE));
 		}
 	}
 	/*
@@ -296,12 +268,7 @@ public class Room {
 		for(String name : this.usernames.keySet()){
 			members.addMember(name);
 		}
-		try {
-			user.send(members);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		user.send(members);
 	}
 	/*
 	 * Handles the leave room message

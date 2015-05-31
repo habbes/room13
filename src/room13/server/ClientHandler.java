@@ -40,6 +40,10 @@ public class ClientHandler implements Runnable {
 		return client;
 	}
 	
+	public void addUser(User user){
+		client.addUser(user);
+	}
+	
 	/**
 	 * request the handler to terminate
 	 */
