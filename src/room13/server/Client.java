@@ -88,10 +88,6 @@ public class Client {
 	 */
 	public Message receive() throws IOException, RemoteConnectionClosedException{
 		return MessageBuilder.build(reader.read());
-	}
-	
-	
-	
-	
+	}	
 	
 }

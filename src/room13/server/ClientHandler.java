@@ -47,7 +47,8 @@ public class ClientHandler implements Runnable {
 				continue;
 			}
 			catch(IOException | RemoteConnectionClosedException e) {
-				handleDisconnect();				
+				handleDisconnect();
+				break;
 			}
 			
 		}
