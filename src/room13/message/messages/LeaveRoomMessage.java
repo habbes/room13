@@ -11,7 +11,7 @@ import room13.message.RawMessage;
 public class LeaveRoomMessage extends BaseRoomMessage {
 
 	public LeaveRoomMessage() {
-		
+		super();
 	}
 	
 	public LeaveRoomMessage(String room){

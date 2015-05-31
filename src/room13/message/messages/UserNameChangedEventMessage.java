@@ -11,10 +11,10 @@ public class UserNameChangedEventMessage extends UserEventMessage {
 
 	private String name;
 	
-	public UserNameChangedEventMessage(String user, String name) {
+	public UserNameChangedEventMessage(String user, String newName) {
 		super(EventMessage.USER_NAME_CHANGED, user);
-		raw.addValue(name);
-		this.name = name;
+		raw.addValue(newName);
+		this.name = newName;
 	}
 
 	public UserNameChangedEventMessage(String user) {

@@ -22,7 +22,7 @@ public class ErrorMessage extends Message {
 	public static final String ROOM_NOT_FOUND = "RmNtFnd";
 	
 	public ErrorMessage() {
-		
+		super();
 	}
 	
 	/**

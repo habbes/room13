@@ -33,6 +33,7 @@ public class RoomListMessage extends Message {
 	 * @param reqId id of the RoomsMessage that requested this list
 	 */
 	public RoomListMessage(int reqId){
+		super();
 		setRespId(reqId);
 		roomList = new ArrayList<String>();
 		

@@ -22,7 +22,7 @@ public class UserEventMessage extends EventMessage {
 	}
 
 	public UserEventMessage() {
-		
+		super();
 	}
 
 	public UserEventMessage(RawMessage rm) {

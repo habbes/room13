@@ -19,6 +19,7 @@ public class EventMessage extends Message {
 	public static final String USER_NAME_CHANGED = "UserName";
 		
 	public EventMessage(String type){
+		super();
 		this.type = type;
 		raw.addValue(type);
 	}
