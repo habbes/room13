@@ -1,8 +1,6 @@
 package room13.message.messages;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-
 import room13.message.Message;
 import room13.message.RawMessage;
 
