@@ -16,6 +16,8 @@ public class Client {
 	
 	private List<User> users = new ArrayList<User>();
 	
+	private boolean connected = true;
+	
 	/**
 	 * Creates a client 
 	 * @param String address
@@ -26,12 +28,7 @@ public class Client {
 		socket = sock;
 		writer = new MessageWriter(socket.getOutputStream());
 		reader = new MessageReader(socket.getInputStream());
-	}
-	
-	public void disconnect(){
-		try {
-			socket.close();
-		} catch (IOException e) {}
+		connected = true;
 	}
 	
 	/**
@@ -67,8 +64,15 @@ public class Client {
 	/*
 	 * Sends the message
 	 */
-	public void send(Message msg) throws IOException{
-		writer.write(msg);
+	public void send(Message msg){
+		
+		try {
+			writer.write(msg);
+		} catch (IOException e) {
+			disconnect();
+			//RUN EVENT HANDLERS
+		}
+		
 	}
 	
 	/**
@@ -78,6 +82,18 @@ public class Client {
 	 */
 	public Message receive() throws IOException{
 		return MessageBuilder.build(reader.read());
+	}
+	
+	/**
+	 * Disconnect from the client connection
+	 */
+	public void disconnect(){
+		if(connected){
+			try {
+				socket.close();
+				connected = false;
+			} catch (IOException e) {}
+		}
 	}
 	
 	
