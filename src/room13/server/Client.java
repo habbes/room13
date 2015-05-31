@@ -6,6 +6,11 @@ import java.util.List;
 
 import room13.message.*;
 
+/**
+ * represents a connected client
+ * @author Habbes
+ *
+ */
 public class Client {
 	
 	
@@ -38,22 +43,7 @@ public class Client {
 	public void addUser(User user){
 		this.users.add(user);
 	}
-	/**
-	 * Removes the user
-	 * notifies the rooms connected to the user the user has left
-	 * @params User user
-	 */
-	public void removeUser(User user){
-			for(User existingUser : this.users){
-				Room room = existingUser.getRoom();
-					try{
-						room.removeUser(user);
-					}catch (Exception e){
-						e.printStackTrace();
-				}
-			}
-		this.users.remove(user);
-	}
+	
 	/*
 	 * Returns the list of all users
 	 * @return List<User> users
@@ -61,6 +51,27 @@ public class Client {
 	public List<User> getUsers(){
 		return this.users;
 	}
+	
+	/**
+	 * checks whether the client is connected to the server
+	 * @return
+	 */
+	public boolean isConnected(){
+		return connected;
+	}
+	
+	/**
+	 * Disconnect from the client connection
+	 */
+	public void disconnect(){
+		if(connected){
+			try {
+				socket.close();
+				connected = false;
+			} catch (IOException e) {}
+		}
+	}
+	
 	/*
 	 * Sends the message
 	 */
@@ -79,17 +90,7 @@ public class Client {
 		return MessageBuilder.build(reader.read());
 	}
 	
-	/**
-	 * Disconnect from the client connection
-	 */
-	public void disconnect(){
-		if(connected){
-			try {
-				socket.close();
-				connected = false;
-			} catch (IOException e) {}
-		}
-	}
+	
 	
 	
 	
