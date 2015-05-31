@@ -1,44 +1,79 @@
 package room13.server;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.SocketTimeoutException;
 
 import room13.message.*;
-import room13.message.messages.BaseRoomMessage;
-import room13.message.messages.DisconnectMessage;
-import room13.message.messages.ErrorMessage;
-import room13.message.messages.JoinRoomMessage;
-import room13.message.messages.KeepAliveMessage;
-import room13.message.messages.NewRoomMessage;
-import room13.message.messages.OkMessage;
-import room13.message.messages.RoomListMessage;
-import room13.message.messages.RoomsMessage;
+import room13.message.messages.*;
 
 /**
  * handles messages from a specific client
  * @author Habbes
  *
  */
-public class ClientHandler {
+public class ClientHandler implements Runnable {
 
 	private Client client;
 	private Server server;
+	
+	public ClientHandler(Client client, Server server){
+		this.client = client;
+		this.server = server;
+	}
 	
 	public Client getClient(){
 		return client;
 	}
 	
-	public void loop(){
+	public void run(){
+		handleClient();
+	}
+	
+	public void handleClient(){
 		
-		
-		
+		while(true){
+			
+			try {
+				Message msg = client.receive();
+				handleMessage(msg);
+			}
+			catch(MessageException e){
+				ErrorMessage error = new ErrorMessage();
+				error.setType(ErrorMessage.GENERIC_ERROR);
+				sendMessage(error);
+			}
+			catch(SocketTimeoutException e){
+				continue;
+			}
+			catch(IOException | RemoteConnectionClosedException e) {
+				handleDisconnect();				
+			}
+			
+		}
+	}
+	
+	/**
+	 * send message to the client
+	 * @param msg
+	 */
+	public void sendMessage(Message msg){
+		try {
+			client.send(msg);
+		}
+		catch(InterruptedIOException e){
+			
+		}
+		catch(IOException e){
+			handleDisconnect();
+		}
 	}
 	
 	/**
 	 * forward message to be handled in the appropriate room
-	 * @param client
 	 * @param msg
 	 */
-	public void routeMessage(Client client, BaseRoomMessage msg){
+	public void routeMessage(BaseRoomMessage msg){
 		
 		//find room to route message to
 		String name = msg.getRoomName();
@@ -53,119 +88,88 @@ public class ClientHandler {
 		}
 		
 		if(user == null){
-			try {
-				client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_NOT_FOUND));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			sendMessage(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_NOT_FOUND));
 			return;
 		}
 		
 		room.handleMessage(user, msg);
 	}
 
-	public void handleMessage(Client client, Message msg){
+	public void handleMessage(Message msg){
 		switch(msg.getMsgId()){
 		case Message.ROOMS:
-			handleRooms(client, (RoomsMessage) msg);
+			handleRooms((RoomsMessage) msg);
 			break;
 		
 		case Message.JOIN_ROOM:
-			handleJoinRoom(client, (JoinRoomMessage) msg);
+			handleJoinRoom((JoinRoomMessage) msg);
 			break;
 		
 		case Message.NEW_ROOM:
-			handleNewRoom(client, (NewRoomMessage) msg);
+			handleNewRoom((NewRoomMessage) msg);
 			break;
 		case Message.KEEP_ALIVE:
-			handleKeepAlive(client, (KeepAliveMessage) msg);
+			handleKeepAlive((KeepAliveMessage) msg);
 			break;
 		case Message.DISCONNECT:	
-			handleDisconnect(client, (DisconnectMessage) msg);
+			handleDisconnect((DisconnectMessage) msg);
 			break;
 		case Message.BROADCAST:
 		case Message.LEAVE_ROOM:
 		case Message.MEMBERS:
 		case Message.NAME:
 		case Message.SEND:
-			routeMessage(client, (BaseRoomMessage) msg);
+			routeMessage((BaseRoomMessage) msg);
 		default:
-			try {
-				client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.GENERIC_ERROR));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			sendMessage(new ErrorMessage(msg.getReqId(), ErrorMessage.GENERIC_ERROR));
 		}
 	}
 	
-	public void handleRooms(Client client, RoomsMessage msg){
+	public void handleRooms(RoomsMessage msg){
 		RoomListMessage resp = new RoomListMessage(msg.getReqId());
 		for(String name : server.getRoomNames()){
 			resp.addRoom(name);
 		}
-		try {
-			client.send(resp);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		sendMessage(resp);
 		
 	}
 	
-	public void handleJoinRoom(Client client, JoinRoomMessage msg){
+	public void handleJoinRoom(JoinRoomMessage msg){
 		Room room = server.getRoom(msg.getRoomName());
 		if(room == null){
-			try {
-				client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_NOT_FOUND));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			sendMessage(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_NOT_FOUND));
 		}
 		else {
 			try {
 				User user = room.addUser(client, msg.getRoomPassword());
-				client.send(new OkMessage(msg.getReqId()));
+				sendMessage(new OkMessage(msg.getReqId()));
 				room.notifyUserJoined(user);
 			} catch (Exception e) {
-				try {
-					client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_ACCESS_DENIED));
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				sendMessage(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_ACCESS_DENIED));
 			}
 		}
 	}
 	
-	public void handleNewRoom(Client client, NewRoomMessage msg){
+	public void handleNewRoom(NewRoomMessage msg){
 		Room room = server.createRoom(msg.getRoomName(), msg.getRoomPassword());
 		if(room == null){
-			try {
-				client.send(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_NAME_UNAVAILABLE));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			sendMessage(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_NAME_UNAVAILABLE));
 		}
 		else {
 			room.createUser(client, true);
-			try {
-				client.send(new OkMessage());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			sendMessage(new OkMessage());
 		}
 	}
 	
-	public void handleKeepAlive(Client client, KeepAliveMessage msg){
+	public void handleKeepAlive(KeepAliveMessage msg){
 		//do nothing
 	}
 	
-	public void handleDisconnect(Client client, DisconnectMessage msg){
+	public void handleDisconnect(DisconnectMessage msg){
+		handleDisconnect();
+	}
+	
+	public void handleDisconnect(){
 		
 		client.disconnect();
 		
@@ -176,6 +180,8 @@ public class ClientHandler {
 		//remove client
 		server.removeClientHandler(this);
 	}
+	
+	
 	
 
 }
