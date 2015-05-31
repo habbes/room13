@@ -23,6 +23,8 @@ public class Client {
 	
 	private boolean connected = true;
 	
+	public final static int DEFAULT_TIMEOUT = 1000;
+	
 	/**
 	 * Creates a client 
 	 * @param String address
@@ -31,6 +33,7 @@ public class Client {
 	 */
 	public Client(Socket sock) throws IOException {
 		socket = sock;
+		socket.setSoTimeout(DEFAULT_TIMEOUT);
 		writer = new MessageWriter(socket.getOutputStream());
 		reader = new MessageReader(socket.getInputStream());
 		connected = true;

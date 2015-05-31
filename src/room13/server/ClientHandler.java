@@ -18,6 +18,11 @@ public class ClientHandler implements Runnable {
 	private Server server;
 	
 	/**
+	 * flag to notify handler to exit loop
+	 */
+	private boolean terminateRequested = false;
+	
+	/**
 	 * 
 	 * @param client the client to handle
 	 * @param server the server to which the client is connected
@@ -36,6 +41,13 @@ public class ClientHandler implements Runnable {
 	}
 	
 	/**
+	 * request the handler to terminate
+	 */
+	public void requestTerminate(){
+		terminateRequested = true;
+	}
+	
+	/**
 	 * Runs the message handling loop. This meant to be run
 	 * in its own thread.
 	 */
@@ -48,7 +60,7 @@ public class ClientHandler implements Runnable {
 	 */
 	public void handleClient(){
 		
-		while(true){
+		while(!terminateRequested){
 			
 			try {
 				Message msg = client.receive();
