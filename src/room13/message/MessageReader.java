@@ -57,7 +57,7 @@ public class MessageReader {
 		if(bytesRead == -1){
 			throw new RemoteConnectionClosedException();
 		}
-		else if(stream.read(encoded) != length)
+		else if(bytesRead != length)
 		{
 			throw new IncorrectMessageLengthException("The message is too short");
 		}
