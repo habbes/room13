@@ -20,12 +20,14 @@ public class JoinRoomMessage extends Message {
 	
 	public JoinRoomMessage(String name){
 		super();
-		setRoomName(name);
+		roomName = name;
+		raw.addValue(name);
 	}
 	
 	public JoinRoomMessage(String name, String password){
 		this(name);
-		setRoomPassword(password);
+		roomPassword = password;
+		raw.addValue(password);
 	}
 
 	public JoinRoomMessage(RawMessage rm) {
