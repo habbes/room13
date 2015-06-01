@@ -1,8 +1,6 @@
 package room13.message.messages;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +33,7 @@ public class RoomListMessage extends Message {
 	 * @param reqId id of the RoomsMessage that requested this list
 	 */
 	public RoomListMessage(int reqId){
+		super();
 		setRespId(reqId);
 		roomList = new ArrayList<String>();
 		

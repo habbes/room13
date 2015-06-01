@@ -1,8 +1,6 @@
 package room13.message.messages;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-
 import room13.message.Message;
 import room13.message.RawMessage;
 
@@ -24,7 +22,7 @@ public class ErrorMessage extends Message {
 	public static final String ROOM_NOT_FOUND = "RmNtFnd";
 	
 	public ErrorMessage() {
-		
+		super();
 	}
 	
 	/**
@@ -33,12 +31,15 @@ public class ErrorMessage extends Message {
 	 * @param type identifies the type of error
 	 */
 	public ErrorMessage(int reqId, String type){
+		super();
 		setRespId(reqId);
-		setType(type);
+		this.type = type;
+		raw.addValue(type);
 	}
 
 	public ErrorMessage(RawMessage rm) {
 		super(rm);
+		type = raw.getValue(0);
 		try {
 			message = new String(rm.getBody(), Message.DEFAULT_CHARSET);
 		} catch (UnsupportedEncodingException e){}

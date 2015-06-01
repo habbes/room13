@@ -1,6 +1,5 @@
 package room13.message.messages;
 
-import room13.message.InvalidMessageException;
 import room13.message.Message;
 import room13.message.RawMessage;
 
@@ -12,7 +11,7 @@ import room13.message.RawMessage;
 public class LeaveRoomMessage extends BaseRoomMessage {
 
 	public LeaveRoomMessage() {
-		
+		super();
 	}
 	
 	public LeaveRoomMessage(String room){

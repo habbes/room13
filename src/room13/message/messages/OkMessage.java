@@ -19,6 +19,7 @@ public class OkMessage extends Message {
 	 * @param reqId id of the message to which this is the response
 	 */
 	public OkMessage(int reqId){
+		super();
 		setRespId(reqId);
 	}
 

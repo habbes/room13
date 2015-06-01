@@ -186,7 +186,7 @@ public class ClientHandler implements Runnable {
 		}
 		else {
 			try {
-				User user = room.addUser(client, msg.getRoomPassword());
+				User user = room.addUser(this, msg.getRoomPassword());
 				sendMessage(new OkMessage(msg.getReqId()));
 				room.notifyUserJoined(user);
 			} catch (Exception e) {
@@ -205,7 +205,7 @@ public class ClientHandler implements Runnable {
 			sendMessage(new ErrorMessage(msg.getReqId(), ErrorMessage.ROOM_NAME_UNAVAILABLE));
 		}
 		else {
-			room.createUser(client, true);
+			room.createUser(this, true);
 			sendMessage(new OkMessage());
 		}
 	}

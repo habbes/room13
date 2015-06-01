@@ -21,7 +21,8 @@ public class NameMessage extends BaseRoomMessage {
 	
 	public NameMessage(String room, String name){
 		this(room);
-		setName(name);
+		this.name = name;
+		raw.addValue(name);
 	}
 
 	public NameMessage(RawMessage rm) {
