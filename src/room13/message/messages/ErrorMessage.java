@@ -31,12 +31,15 @@ public class ErrorMessage extends Message {
 	 * @param type identifies the type of error
 	 */
 	public ErrorMessage(int reqId, String type){
+		super();
 		setRespId(reqId);
-		setType(type);
+		this.type = type;
+		raw.addValue(type);
 	}
 
 	public ErrorMessage(RawMessage rm) {
 		super(rm);
+		type = raw.getValue(0);
 		try {
 			message = new String(rm.getBody(), Message.DEFAULT_CHARSET);
 		} catch (UnsupportedEncodingException e){}
