@@ -9,7 +9,7 @@ import org.junit.Test;
 public class MessageStreamTest {
 
 	@Test
-	public void testMessageEncodeAndDecode() throws IOException {
+	public void testMessageEncodeAndDecode() throws IOException, RemoteConnectionClosedException {
 		RawMessage msg = new RawMessage();
 		msg.setMsgId(1);
 		msg.setReqId(10);
