@@ -14,7 +14,20 @@ public class MessageBuilder {
 		case Message.OK:
 			return new OkMessage(msg);
 		case Message.EVENT:
-			return new EventMessage(msg);
+			//create appropriate EventMessage subclass based on Event Type
+			switch(msg.getValue(0)){
+			case EventMessage.USER_DISCONNECTED:
+				return new UserDisconnectedEventMessage(msg);
+			case EventMessage.USER_JOINED:
+				return new UserJoinedEventMessage(msg);
+			case EventMessage.USER_LEFT:
+				return new UserLeftEventMessage(msg);
+			case EventMessage.USER_NAME_CHANGED:
+				return new UserNameChangedEventMessage(msg);
+			default:
+				return new EventMessage(msg);
+			}
+			
 		case Message.KEEP_ALIVE:
 			return new KeepAliveMessage(msg);
 		case Message.DISCONNECT:
