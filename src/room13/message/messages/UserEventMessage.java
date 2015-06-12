@@ -15,6 +15,7 @@ public class UserEventMessage extends EventMessage {
 		super(type);
 		//user is second value param
 		raw.addValue(user); //TODO should it be a Key/Val instead
+		this.user = user;
 	}
 	
 	public UserEventMessage(String type) {

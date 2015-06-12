@@ -26,7 +26,7 @@ public abstract class BaseRoomMessage extends Message {
 	public BaseRoomMessage(RawMessage rm) {
 		super(rm);
 		roomName = rm.getDictValue("room");
-		if(roomName == null || roomName ==""){
+		if(roomName == null || roomName.isEmpty()){
 			throw new InvalidMessageException("Room not specified.");
 		}
 	}

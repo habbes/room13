@@ -75,10 +75,26 @@ public class RawMessage {
 	}
 	
 	public void addValue(String val){
+		if(val == null || val.isEmpty()){
+			/*
+			 * the protocol does not allow value param to be empty because
+			 * then they would be preceded by a 0 length. But 0 is used to
+			 * indicate the boundary between params and the body and so having
+			 * an empty param would lead to the message being incorrectly
+			 * interpreted since everything from that 0 will be considered the body
+			 */
+			throw new InvalidMessageFormatException("Value param is empty.");
+		}
 		valueParams.add(val);
 	}
 	
 	public void setValue(int pos, String val){
+		if(val == null || val.isEmpty()){
+			/*
+			 * see addValue for reasons why empty value params are not allowed
+			 */
+			throw new InvalidMessageFormatException("Value param is empty.");
+		}
 		valueParams.set(pos, val);
 	}
 	

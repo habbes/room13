@@ -10,7 +10,7 @@ import room13.message.RawMessage;
 public class UserDisconnectedEventMessage extends UserEventMessage {
 
 	public UserDisconnectedEventMessage(String user) {
-		super(EventMessage.USER_DISCONNECTED);
+		super(EventMessage.USER_DISCONNECTED, user);
 	}
 
 	public UserDisconnectedEventMessage() {

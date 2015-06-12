@@ -22,25 +22,24 @@ public class SendMessage extends BaseRoomMessage {
 	}
 	
 	public SendMessage(String room){
-		super(room);
+		this(room, "");
 	}
 	
 	public SendMessage(String room, String recipient){
 		super(room);
 		this.recipient = recipient;
 		raw.addValue(recipient);
-		this.sender = "";
-		raw.addValue(this.sender);
+		setSender("");
 	}
 	
 
 	public SendMessage(RawMessage rm) {
 		super(rm);
 		recipient = rm.getValue(0);
-		if(recipient == null || recipient == ""){
+		if(recipient == null || recipient.isEmpty()){
 			throw new InvalidMessageException("Recipient not specified.");
 		}
-		sender = rm.getValue(1);
+		sender = rm.getDictValue("sender");
 		message = BodyCoder.decodeText(rm.getBody());
 	}
 
@@ -74,7 +73,7 @@ public class SendMessage extends BaseRoomMessage {
 	 */
 	public void setSender(String s){
 		sender = s;
-		raw.setValue(1, s);
+		raw.setDictValue("sender", s);
 	}
 	
 	public String getSender(){
