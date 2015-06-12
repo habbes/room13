@@ -166,6 +166,7 @@ public class MessagesTest {
 		String recipient = "user";
 		String message = "Hello";
 		SendMessage input = new SendMessage(room, recipient);
+		assertEquals("Room set", room, input.getRoomName());
 		input.setMessage(message);
 		SendMessage output = (SendMessage) sendReceive(input);
 		

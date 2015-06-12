@@ -10,7 +10,7 @@ import room13.message.RawMessage;
 public class UserLeftEventMessage extends UserEventMessage {
 
 	public UserLeftEventMessage(String user) {
-		super(EventMessage.USER_LEFT);
+		super(EventMessage.USER_LEFT, user);
 	}
 
 	public UserLeftEventMessage() {

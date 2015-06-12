@@ -10,7 +10,7 @@ import room13.message.RawMessage;
 public class UserJoinedEventMessage extends UserEventMessage {
 
 	public UserJoinedEventMessage(String user) {
-		super(EventMessage.USER_JOINED);
+		super(EventMessage.USER_JOINED, user);
 	}
 
 	public UserJoinedEventMessage() {
