@@ -13,8 +13,13 @@ public class Room {
 	private String name;
 	private List<User> users = new ArrayList<User>();
 	private Map<String,User> usernames = new HashMap<String, User>();
-	private int lastId = 0;
+	private volatile int lastId = 0;
 	private String password = "";
+	
+	//used to synchronize access to the users list
+	private Object usersLock = new Object();
+	//used to synchronize increment of lastId
+	private Object idLock = new Object();
 	
 	public Room(String name) {
 		this(name,"");
@@ -50,7 +55,9 @@ public class Room {
 			user.setAdmin();
 			this.setAdmin(user);
 		} 
-		users.add(user);
+		synchronized(users){
+			users.add(user);
+		}
 		return user;
 	}
 	/**
@@ -58,7 +65,9 @@ public class Room {
 	 * @return int (lastId + 1)
 	 */
 	private int generateId(){
-		return ++lastId;
+		synchronized(idLock){
+			return ++lastId;
+		}
 	}
 	/*
 	 * Sets the name of the room
@@ -81,32 +90,40 @@ public class Room {
 	 * @throws Exception
 	 */
 	public void setUserName(User user,String name) throws Exception{
-		if(usernames.containsKey(name))
-			throw new Exception("User name in use");
-		user.setName(name);
-		usernames.put(name, user);
+		synchronized(usersLock){
+			if(usernames.containsKey(name))
+				throw new Exception("User name in use");
+			user.setName(name);
+			usernames.put(name, user);
+		}
 	}
 	/**
 	 * Removes a user from a room
 	 * @param User user 
 	 */
 	public void removeUser(User user){
-		users.remove(user);
-		this.usernames.remove(user.getName());
+		synchronized(usersLock){
+			users.remove(user);
+			this.usernames.remove(user.getName());
+		}
 	}
 	/**
 	 * Returns users
 	 * @return List users
 	 */
 	public List<User> getUsers(){
-		return this.users;
+		synchronized(usersLock){
+			return this.users;
+		}
 	}
 	/*
 	 * Returns a User of the name
 	 * @return User user
 	 */
 	public User findUser(String name){
-		return this.usernames.get(name);
+		synchronized(usersLock){
+			return this.usernames.get(name);
+		}
 	}
 	/**
 	 * Sets Admin to a room
@@ -125,7 +142,9 @@ public class Room {
 	public User addUser(ClientHandler client,String pass) throws Exception{
 		if(pass == this.password){ //check password
 			User user = new User(client,this,this.generateId());  //create user
-			users.add(user); //add the user
+			synchronized(usersLock) {
+				users.add(user); //add the user
+			}
 			return user;
 		}else{
 			throw new Exception("Wrong password!"); //oops!!! something went wrong
@@ -137,8 +156,10 @@ public class Room {
 	 * @param msg
 	 */
 	public void sendBroadcast(Message msg){
-		for(User user : users){
-			user.send(msg);
+		synchronized(usersLock){
+			for(User user : users){
+				user.send(msg);
+			}
 		}
 	}
 	
@@ -149,9 +170,11 @@ public class Room {
 	 * @param ignoreUser
 	 */
 	public void sendBroadcast(Message msg, User ignoreUser){
-		for(User user : users){
-			if(user != ignoreUser){
-				user.send(msg);
+		synchronized(usersLock){
+			for(User user : users){
+				if(user != ignoreUser){
+					user.send(msg);
+				}
 			}
 		}
 	}
@@ -265,8 +288,10 @@ public class Room {
 	 */
 	public void handleMembers(User user,MembersMessage msg){
 		MembersListMessage members = new MembersListMessage(this.name,msg.getReqId());
-		for(String name : this.usernames.keySet()){
-			members.addMember(name);
+		synchronized(usersLock){
+			for(String name : this.usernames.keySet()){
+				members.addMember(name);
+			}
 		}
 		user.send(members);
 	}
