@@ -116,6 +116,7 @@ public class ClientHandler implements Runnable {
 			for(User u : client.getUsers()){
 				if(u.getRoom() == room){
 					user = u;
+					break;
 				}
 			}
 		}
