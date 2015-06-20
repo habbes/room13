@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-public class Server {
+public class Server implements Runnable {
 	
 	private ServerSocket socket;
 	
@@ -44,6 +44,21 @@ public class Server {
 	 */
 	public Server() throws IOException{
 		this(DEFAULT_PORT);
+	}
+	
+	/**
+	 * Creates a server with the provided server socket
+	 * @param socket
+	 * @throws IOException
+	 */
+	public Server(ServerSocket socket) throws IOException {
+		this.socket = socket;
+		prepareExecutor();		
+	}
+	
+	private void prepareExecutor() throws IOException {
+		socket.setSoTimeout(DEFAULT_TIMEOUT);
+		handlerExecutor = Executors.newCachedThreadPool();
 	}
 	
 	List<ClientHandler> clientHandlers = new ArrayList<ClientHandler>();
@@ -101,6 +116,14 @@ public class Server {
 	 */
 	public void requestTerminate(){
 		terminateRequested = true;
+	}
+	
+	/**
+	 * starts cycle of listening and handling client connections,
+	 * this should be ran in its own thread
+	 */
+	public void run(){
+		handleConnections();
 	}
 	
 	/**
